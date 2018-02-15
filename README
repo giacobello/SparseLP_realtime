@@ -1,0 +1,108 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                           %
+% A real-time convex optimization                           %
+% sparse linear prediction solver                           %
+%                                                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This code are designed around solving the convex optimization 
+problem
+
+minimize ||x-X*alpha||_1 + gamma || alpha ||_1
+
+It also includes scipts for compiling, linking, test, timings 
+and benchmark procedures.
+
+The algorithmic background, motivation, etc. is described in
+
+REAL-TIME IMPLEMENTATIONS OF SPARSE LINEAR PREDICTION 
+              FOR SPEECH PROCESSING
+T.L. Jensen, D. Giacobello, M.G. Christensen, S.H. Jensen, M. Moonen
+                   ICASSP2013
+
+If you use this implementation then please give reference to the 
+above paper.
+
+----- Matlab: 
+There is a Matlab/Mex interface to the core implementations in 
+C++. This needs to be compiled. The following procedure should 
+work on all platforms but linking on a range of platforms can
+be difficult.
+
+1. Go to the dir SparseLP/mlib
+Of you have yet not used mex, then you need to run 
+
+>>mex -setup 
+
+and possible install a compiler or select one from the presented
+list. Then you can run
+
+>> install_slp
+
+It will default linkt against the BLAS/LAPACK libraries that comes
+with Matlab. If this does not succeed then, see the output error,
+use help install_slp, and possible supply your own BLAS/LAPACK
+libraries and the corresponding link command as e.g.
+install_slp('-lblas -llapack').
+ 
+2.
+Go to the dir SparseLP/test
+>>test_cimp
+This will solve a small problem. It also provides an example
+of how to use the solver. Possible consult the description via
+
+>> help slp
+(make sure SparseLP/mlib is in your path) 
+
+
+----- Reproducibility:
+This can be a little difficulty because it requires the use of 
+code/executables in several languages and different software 
+packages as well as some commandline possibilities. We recommend
+to try this first on a unix system
+
+1. Requirements:
+   Run Makefiles
+	 gcc (GNU C compiler)
+	 Matlab
+	 CVX (http://cvxr.com/cvx/)
+
+2. First we need to be able to link to BLAS/LAPACK library.
+Go to SparseLP/src/Makefile. Here you can set the options
+at the top. For most unix based systems you can change the lines
+
+LINK = -lblas -llapack
+#LINK = -DMKL $(MKL)
+
+to link to the default system BLAS/LAPACK libraries. We will
+recommend that you use vendor specific implemenations since 
+they are usually faster.
+
+Then in SparseLP/src run
+
+$ make slp_primal_double
+$ ./slp_primal_double
+
+and you should see an output with some iterations, where the numbers
+gets smaller and smaller (the algorithm converges). 
+
+Also goto SparseLP/cvxgen5010 and make the cvxgen solver
+>> make
+
+3. Generate the test data. Go to SparseLP/data_process
+>> form_benchmark_data( 40, 10)
+>> form_benchmark_data( 160, 40)
+>> form_benchmark_data( 160, 100)
+
+Then go to SparseLP/test and run the script test_all.sh from the
+command line. In e.g. unix systems
+$ ./test_all.sh
+
+This will probably take some hours. On my machine ~8hrs.
+
+4. The data can be viewed as follows. Go to SparseLP/test
+>>plot_benchmark_signal('problem5010')
+>>plot_benchmark_signal('problem20040')
+>>plot_benchmark_signal('problem260100')
+
+
